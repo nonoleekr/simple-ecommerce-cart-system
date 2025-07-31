@@ -1,3 +1,21 @@
+# Simple E-commerce Cart System
+
+A basic e-commerce cart system with a Java Swing interface.
+
+## How to Run
+
+1. Make sure you have Java JDK installed (version 8 or higher)
+2. Open terminal in the project root directory
+3. Compile the code:
+```bash
+mkdir bin
+javac -d bin src/*.java src/ui/*.java
+```
+4. Run the application:
+```bash
+java -cp bin App
+```
+
 ## Getting Started
 
 Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
