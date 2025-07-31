@@ -1,0 +1,4 @@
+" .gitignore "
+# Ignore compiled class files and binary output
+bin/
+*.class
