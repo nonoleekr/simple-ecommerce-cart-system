@@ -1,8 +1,10 @@
-simple-ecommerce-cart-system
-├── src
-│   └── App.java
-├── data
-│   ├── products.txt
-│   ├── orders.txt
-│   └── users.txt
-└── README.md
+P001,Apple,0.99,50
+P002,Banana,0.59,40
+P003,Orange,1.29,30
+P004,Bread,2.49,20
+P005,Milk,1.99,25
+P006,Eggs,3.49,15
+P007,Cheese,4.99,10
+P008,Chicken,7.99,8
+P009,Beef,9.99,5
+P010,Chocolate,1.49,35
