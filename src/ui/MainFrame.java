@@ -7,9 +7,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import model.Cart;
 import model.CartItem;
-import model.Product;
 import model.Order;
 import model.OrderQueue;
+import model.Product;
 
 public class MainFrame extends JFrame {
     private java.util.List<Product> products = new ArrayList<>();
@@ -154,21 +154,21 @@ public class MainFrame extends JFrame {
         });
 
         JButton purchaseBtn = new JButton("Purchase");
-        purchaseBtn.addActionListener(e -> {
-            double total = cart.calculateTotal();
-            int confirm = JOptionPane.showConfirmDialog(this, "Total: $" + String.format("%.2f", total) + "\nProceed to purchase?", "Confirm Purchase", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                // Place order: add to queue and save to file
-                Order order = new Order(cart, total);
-                orderQueue.placeOrder(order);
-                saveOrderToFile(order);
-                cart = new Cart();
-                ((JDialog) SwingUtilities.getWindowAncestor(cartTable)).dispose();
-                JOptionPane.showMessageDialog(this, "Order placed!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
 
-    // Save order details to orders.txt
+        JPanel btnPanel = new JPanel();
+        btnPanel.add(removeBtn);
+        btnPanel.add(purchaseBtn);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(btnPanel, BorderLayout.SOUTH);
+        panel.add(new JLabel("Total: $" + String.format("%.2f", cart.calculateTotal()), SwingConstants.CENTER), BorderLayout.NORTH);
+
+        JDialog dialog = new JDialog(this, "Cart", true);
+        dialog.setContentPane(panel);
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 
     private void saveOrderToFile(Order order) {
@@ -185,11 +185,10 @@ public class MainFrame extends JFrame {
         }
 
         JPanel btnPanel = new JPanel();
-        btnPanel.add(removeBtn);
-        btnPanel.add(purchaseBtn);
+        
 
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(scrollPane, BorderLayout.CENTER);
+        
         panel.add(btnPanel, BorderLayout.SOUTH);
         panel.add(new JLabel("Total: $" + String.format("%.2f", cart.calculateTotal()), SwingConstants.CENTER), BorderLayout.NORTH);
 
@@ -198,5 +197,24 @@ public class MainFrame extends JFrame {
         dialog.setSize(400, 300);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
+    }
+    private void processNextOrder() {
+        Order order = orderQueue.processNextOrder();
+        if (order != null) {
+            // Process the order
+            System.out.println("Processing order:");
+            System.out.println("Order ID: " + order.getTimestamp());
+            System.out.println("Total: $" + String.format("%.2f", order.getTotal()));
+            CartItem current = order.getCart().getHead();
+            while (current != null) {
+                System.out.println(current.getProduct().getName() + " x " + current.getQuantity());
+                current = current.getNext();
+            }
+            // Save the order to file
+            saveOrderToFile(order);
+            JOptionPane.showMessageDialog(this, "Order processed successfully.", "Order Processed", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "No orders in queue.", "No Orders", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 }
