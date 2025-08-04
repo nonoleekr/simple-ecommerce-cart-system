@@ -154,6 +154,20 @@ public class MainFrame extends JFrame {
         });
 
         JButton purchaseBtn = new JButton("Purchase");
+        purchaseBtn.addActionListener(e -> {
+            if (cartItems.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Cart is empty.");
+                return;
+            }
+            // Create order and add to queue
+            Order order = new Order(cart, cart.calculateTotal());
+            orderQueue.placeOrder(order);
+            saveOrderToFile(order);
+            // Clear the cart
+            cart = new Cart();
+            JOptionPane.showMessageDialog(this, "Order placed successfully!");
+            ((JDialog) SwingUtilities.getWindowAncestor(cartTable)).dispose();
+        });
 
         JPanel btnPanel = new JPanel();
         btnPanel.add(removeBtn);

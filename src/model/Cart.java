@@ -56,4 +56,24 @@ public class Cart {
     }
 
     public CartItem getHead() { return head; }
+
+    public static void performanceTest(int numItems) {
+        Cart cart = new Cart();
+        long startAdd = System.nanoTime();
+        for (int i = 0; i < numItems; i++) {
+            cart.addItem(new Product("ID" + i, "Product" + i, 1.0, 100), 1);
+        }
+        long endAdd = System.nanoTime();
+        long addTime = endAdd - startAdd;
+
+        long startRemove = System.nanoTime();
+        for (int i = 0; i < numItems; i++) {
+            cart.removeItem("ID" + i);
+        }
+        long endRemove = System.nanoTime();
+        long removeTime = endRemove - startRemove;
+
+        System.out.println("Add " + numItems + " items: " + addTime + " ns");
+        System.out.println("Remove " + numItems + " items: " + removeTime + " ns");
+    }
 }
