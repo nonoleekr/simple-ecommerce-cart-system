@@ -28,7 +28,7 @@ public class OrderManager {
                 lineNumber++;
                 System.out.println("Line " + lineNumber + ": '" + line + "'");
                 
-                if (line.startsWith("Order ID:") || line.startsWith("User:")) {
+                if (line.startsWith("Order ID:")) {
                     // Start of a new order
                     if (readingOrder && currentOrder.length() > 0) {
                         // Process previous order
@@ -42,6 +42,10 @@ public class OrderManager {
                     readingItems = false;
                     currentOrder.append(line).append("\n");
                     System.out.println("Started reading new order");
+                } else if (line.startsWith("User:")) {
+                    // Continue building current order
+                    currentOrder.append(line).append("\n");
+                    System.out.println("Added user to current order");
                 } else if (line.startsWith("Order at:")) {
                     currentOrder.append(line).append("\n");
                     readingItems = true;

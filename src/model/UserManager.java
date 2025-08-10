@@ -69,4 +69,35 @@ public class UserManager {
         }
         return false;
     }
+
+    public boolean removeUser(String username) {
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getUsername().equals(username)) {
+                users.remove(i);
+                saveUsers();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void performanceTest(int numUsers) {
+        UserManager userManager = new UserManager();
+        long startAdd = System.nanoTime();
+        for (int i = 0; i < numUsers; i++) {
+            userManager.registerUser("user" + i, "password" + i);
+        }
+        long endAdd = System.nanoTime();
+        long addTime = endAdd - startAdd;
+
+        long startRemove = System.nanoTime();
+        for (int i = 0; i < numUsers; i++) {
+            userManager.removeUser("user" + i);
+        }
+        long endRemove = System.nanoTime();
+        long removeTime = endRemove - startRemove;
+
+        System.out.println("Add " + numUsers + " users: " + addTime + " ns");
+        System.out.println("Remove " + numUsers + " users: " + removeTime + " ns");
+    }
 }

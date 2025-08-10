@@ -6,6 +6,11 @@ public class App {
         // Performance test
         model.Cart.performanceTest(100);
         model.Cart.performanceTest(150);
+        
+        // User performance test
+        model.UserManager.performanceTest(100);
+        model.UserManager.performanceTest(150);
+        
         SwingUtilities.invokeLater(() -> {
             LoginFrame frame = new LoginFrame();
             frame.setVisible(true);
