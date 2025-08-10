@@ -10,6 +10,8 @@ import model.CartItem;
 import model.Order;
 import model.OrderQueue;
 import model.Product;
+import model.User;
+import ui.LoginFrame;
 
 public class MainFrame extends JFrame {
     private java.util.List<Product> products = new ArrayList<>();
@@ -17,9 +19,15 @@ public class MainFrame extends JFrame {
     private DefaultTableModel productTableModel;
     private Cart cart = new Cart();
     private OrderQueue orderQueue = new OrderQueue();
+    private User currentUser;
 
     public MainFrame() {
-        setTitle("E-Commerce Cart System");
+        this(null);
+    }
+
+    public MainFrame(User user) {
+        this.currentUser = user;
+        setTitle("E-Commerce Cart System" + (user != null ? " - Welcome " + user.getUsername() : ""));
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -46,9 +54,14 @@ public class MainFrame extends JFrame {
         JButton viewCartBtn = new JButton("View Cart");
         viewCartBtn.addActionListener(e -> showCartDialog());
 
+        // Logout Button
+        JButton logoutBtn = new JButton("Logout");
+        logoutBtn.addActionListener(e -> logout());
+
         JPanel bottomPanel = new JPanel();
         bottomPanel.add(addToCartBtn);
         bottomPanel.add(viewCartBtn);
+        bottomPanel.add(logoutBtn);
 
         add(new JLabel("Product List", SwingConstants.CENTER), BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
@@ -229,6 +242,21 @@ public class MainFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Order processed successfully.", "Order Processed", JOptionPane.INFORMATION_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(this, "No orders in queue.", "No Orders", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void logout() {
+        int choice = JOptionPane.showConfirmDialog(this, 
+            "Are you sure you want to logout?", "Logout", 
+            JOptionPane.YES_NO_OPTION);
+        
+        if (choice == JOptionPane.YES_OPTION) {
+            this.dispose();
+            // Create new login frame
+            SwingUtilities.invokeLater(() -> {
+                LoginFrame loginFrame = new LoginFrame();
+                loginFrame.setVisible(true);
+            });
         }
     }
 }

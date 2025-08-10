@@ -1,7 +1,1 @@
-This file is for user simulation.
-
-Add 100 items: 9951400 ns
-Remove 100 items: 386800 ns
-
-Add 150 items: 865800 ns
-Remove 150 items: 491500 ns
+ronald, 123456

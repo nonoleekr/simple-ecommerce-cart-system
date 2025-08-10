@@ -2,4 +2,11 @@
 # Ignore compiled class files and binary output
 bin/
 *.class
+
+# Ignore VS Code settings folder
 .vscode/
+
+# Ignore specific data files
+orders.txt
+products.txt
+users.txt

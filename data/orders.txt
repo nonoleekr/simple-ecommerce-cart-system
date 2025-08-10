@@ -1,0 +1,9 @@
+Order at: Sun Aug 10 18:04:44 GMT+08:00 2025, Total: $87.33
+P007,Cheese,1,4.99
+P006,Eggs,1,3.49
+P005,Milk,10,1.99
+P004,Bread,10,2.49
+P003,Orange,5,1.29
+P002,Banana,30,0.59
+P001,Apple,10,0.99
+---

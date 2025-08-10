@@ -1,5 +1,5 @@
 import javax.swing.SwingUtilities;
-import ui.MainFrame;
+import ui.LoginFrame;
 
 public class App {
     public static void main(String[] args) {
@@ -7,7 +7,7 @@ public class App {
         model.Cart.performanceTest(100);
         model.Cart.performanceTest(150);
         SwingUtilities.invokeLater(() -> {
-            MainFrame frame = new MainFrame();
+            LoginFrame frame = new LoginFrame();
             frame.setVisible(true);
         });
     }
