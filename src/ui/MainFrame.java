@@ -8,10 +8,10 @@ import javax.swing.table.DefaultTableModel;
 import model.Cart;
 import model.CartItem;
 import model.Order;
+import model.OrderManager;
 import model.OrderQueue;
 import model.Product;
 import model.User;
-import ui.LoginFrame;
 
 public class MainFrame extends JFrame {
     private java.util.List<Product> products = new ArrayList<>();
@@ -19,6 +19,7 @@ public class MainFrame extends JFrame {
     private DefaultTableModel productTableModel;
     private Cart cart = new Cart();
     private OrderQueue orderQueue = new OrderQueue();
+    private OrderManager orderManager;
     private User currentUser;
 
     public MainFrame() {
@@ -27,6 +28,7 @@ public class MainFrame extends JFrame {
 
     public MainFrame(User user) {
         this.currentUser = user;
+        this.orderManager = new OrderManager();
         setTitle("E-Commerce Cart System" + (user != null ? " - Welcome " + user.getUsername() : ""));
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -54,6 +56,10 @@ public class MainFrame extends JFrame {
         JButton viewCartBtn = new JButton("View Cart");
         viewCartBtn.addActionListener(e -> showCartDialog());
 
+        // Order History Button
+        JButton orderHistoryBtn = new JButton("Order History");
+        orderHistoryBtn.addActionListener(e -> showOrderHistoryDialog());
+
         // Logout Button
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.addActionListener(e -> logout());
@@ -61,6 +67,7 @@ public class MainFrame extends JFrame {
         JPanel bottomPanel = new JPanel();
         bottomPanel.add(addToCartBtn);
         bottomPanel.add(viewCartBtn);
+        bottomPanel.add(orderHistoryBtn);
         bottomPanel.add(logoutBtn);
 
         add(new JLabel("Product List", SwingConstants.CENTER), BorderLayout.NORTH);
@@ -173,9 +180,9 @@ public class MainFrame extends JFrame {
                 return;
             }
             // Create order and add to queue
-            Order order = new Order(cart, cart.calculateTotal());
+            Order order = new Order(currentUser.getUsername(), cart, cart.calculateTotal());
             orderQueue.placeOrder(order);
-            saveOrderToFile(order);
+            orderManager.saveOrder(order); // Save order with user information
             // Clear the cart
             cart = new Cart();
             JOptionPane.showMessageDialog(this, "Order placed successfully!");
@@ -198,33 +205,106 @@ public class MainFrame extends JFrame {
         dialog.setVisible(true);
     }
 
-    private void saveOrderToFile(Order order) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("data/orders.txt", true))) {
-            bw.write("Order at: " + order.getTimestamp() + ", Total: $" + String.format("%.2f", order.getTotal()) + "\n");
-            CartItem current = order.getCart().getHead();
-            while (current != null) {
-                bw.write(current.getProduct().getId() + "," + current.getProduct().getName() + "," + current.getQuantity() + "," + current.getProduct().getPrice() + "\n");
-                current = current.getNext();
-            }
-            bw.write("---\n");
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Failed to save order.", "Error", JOptionPane.ERROR_MESSAGE);
+
+
+    private void showOrderHistoryDialog() {
+        if (currentUser == null) {
+            JOptionPane.showMessageDialog(this, "User not logged in.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+        
+        java.util.List<Order> userOrders = orderManager.getUserOrders(currentUser.getUsername());
+        if (userOrders.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No order history available.", "Order History", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        String[] columns = {"Order ID", "Date", "Total", "Items"};
+        Object[][] data = new Object[userOrders.size()][4];
+        for (int i = 0; i < userOrders.size(); i++) {
+            Order order = userOrders.get(i);
+            data[i][0] = order.getOrderId();
+            data[i][1] = order.getTimestamp();
+            data[i][2] = String.format("$%.2f", order.getTotal());
+            data[i][3] = getCartItemCount(order.getCart());
+        }
+        
+        DefaultTableModel historyModel = new DefaultTableModel(data, columns) {
+            public boolean isCellEditable(int row, int col) { return false; }
+        };
+        JTable historyTable = new JTable(historyModel);
+        JScrollPane scrollPane = new JScrollPane(historyTable);
+
+        JButton viewDetailsBtn = new JButton("View Details");
+        viewDetailsBtn.addActionListener(e -> {
+            int row = historyTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select an order to view details.");
+                return;
+            }
+            Order selectedOrder = userOrders.get(row);
+            showOrderDetailsDialog(selectedOrder);
+        });
 
         JPanel btnPanel = new JPanel();
-        
+        btnPanel.add(viewDetailsBtn);
 
         JPanel panel = new JPanel(new BorderLayout());
-        
+        panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(btnPanel, BorderLayout.SOUTH);
-        panel.add(new JLabel("Total: $" + String.format("%.2f", cart.calculateTotal()), SwingConstants.CENTER), BorderLayout.NORTH);
 
-        JDialog dialog = new JDialog(this, "Cart", true);
+        JDialog dialog = new JDialog(this, "Order History - " + currentUser.getUsername(), true);
         dialog.setContentPane(panel);
-        dialog.setSize(400, 300);
+        dialog.setSize(600, 400);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
+
+    private int getCartItemCount(Cart cart) {
+        int count = 0;
+        CartItem current = cart.getHead();
+        while (current != null) {
+            count += current.getQuantity();
+            current = current.getNext();
+        }
+        return count;
+    }
+
+    private void showOrderDetailsDialog(Order order) {
+        String[] columns = {"Product ID", "Name", "Quantity", "Price", "Subtotal"};
+        java.util.List<Object[]> dataList = new ArrayList<>();
+        
+        CartItem current = order.getCart().getHead();
+        while (current != null) {
+            double subtotal = current.getQuantity() * current.getProduct().getPrice();
+            dataList.add(new Object[]{
+                current.getProduct().getId(),
+                current.getProduct().getName(),
+                current.getQuantity(),
+                String.format("$%.2f", current.getProduct().getPrice()),
+                String.format("$%.2f", subtotal)
+            });
+            current = current.getNext();
+        }
+        
+        Object[][] data = dataList.toArray(new Object[0][]);
+        DefaultTableModel detailsModel = new DefaultTableModel(data, columns) {
+            public boolean isCellEditable(int row, int col) { return false; }
+        };
+        JTable detailsTable = new JTable(detailsModel);
+        JScrollPane scrollPane = new JScrollPane(detailsTable);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(new JLabel("Order Total: $" + String.format("%.2f", order.getTotal()), SwingConstants.CENTER), BorderLayout.NORTH);
+
+        JDialog dialog = new JDialog(this, "Order Details - " + order.getOrderId(), true);
+        dialog.setContentPane(panel);
+        dialog.setSize(500, 300);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
     private void processNextOrder() {
         Order order = orderQueue.processNextOrder();
         if (order != null) {
@@ -237,8 +317,7 @@ public class MainFrame extends JFrame {
                 System.out.println(current.getProduct().getName() + " x " + current.getQuantity());
                 current = current.getNext();
             }
-            // Save the order to file
-            saveOrderToFile(order);
+            // Order already saved by OrderManager when placed
             JOptionPane.showMessageDialog(this, "Order processed successfully.", "Order Processed", JOptionPane.INFORMATION_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(this, "No orders in queue.", "No Orders", JOptionPane.INFORMATION_MESSAGE);
