@@ -1,8 +1,0 @@
-Order ID: ORD1754824966596
-User: nonoleekr
-Order at: Sun Aug 10 19:22:46 GMT+08:00 2025, Total: $24.96
-P009,Beef,1,9.99
-P008,Chicken,1,7.99
-P006,Eggs,2,3.49
----
-

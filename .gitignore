@@ -7,6 +7,6 @@ bin/
 .vscode/
 
 # Ignore specific data files
-orders.txt
-products.txt
-users.txt
+**/orders.txt
+**/products.txt
+**/users.txt
