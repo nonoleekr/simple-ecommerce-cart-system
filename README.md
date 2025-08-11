@@ -114,24 +114,24 @@ These results are discussed in the final project report, with comparisons to the
 
 ```
 Simple E-Commerce Cart System/
-├── Src/                  // Contains all Java source code for the application.
-│   ├── Model/            // Defines the core data entities and business logic of the application.
-│   │   ├── Cart.java             // Manages the user's shopping cart using a Linked List.
-│   │   ├── CartItem.java         // Represents an individual product item within the shopping cart.
-│   │   ├── Order.java            // Defines the structure for a customer's order.
-│   │   ├── OrderManager.java     // Handles order creation, storage, and retrieval operations.
-│   │   ├── OrderQueue.java       // Implements the queue for processing customer orders.
-│   │   ├── Product.java          // Represents a product available in the e-commerce system.
-│   │   ├── User.java             // Represents a system user with login credentials.
-│   │   └── UserManager.java      // Manages user registration, authentication, and retrieval.
-│   ├── Ui/                       // Contains Java Swing classes for the graphical user interface.
-│   │   ├── LoginFrame.java       // Handles user login interface and authentication flow.
-│   │   └── MainFrame.java        // Handles the main application window and user interactions.
-│   └── App.java                  // The main entry point for the application.
-└── Data/                         // Stores persistent application data in text files.
-    ├── Orders.txt                // Stores records of processed customer orders.
-    ├── Products.txt              // Contains the list of available products.
-    └── Users.txt                 // Stores user-related information.
+├── Src/                  # Contains all Java source code for the application.
+│   ├── Model/            # Defines the core data entities and business logic of the application.
+│   │   ├── Cart.java             # Manages the user's shopping cart using a Linked List.
+│   │   ├── CartItem.java         # Represents an individual product item within the shopping cart.
+│   │   ├── Order.java            # Defines the structure for a customer's order.
+│   │   ├── OrderManager.java     # Handles order creation, storage, and retrieval operations.
+│   │   ├── OrderQueue.java       # Implements the queue for processing customer orders.
+│   │   ├── Product.java          # Represents a product available in the e-commerce system.
+│   │   ├── User.java             # Represents a system user with login credentials.
+│   │   └── UserManager.java      # Manages user registration, authentication, and retrieval.
+│   ├── Ui/                       # Contains Java Swing classes for the graphical user interface.
+│   │   ├── LoginFrame.java       # Handles user login interface and authentication flow.
+│   │   └── MainFrame.java        # Handles the main application window and user interactions.
+│   └── App.java                  # The main entry point for the application.
+└── Data/                         # Stores persistent application data in text files.
+    ├── Orders.txt                # Stores records of processed customer orders.
+    ├── Products.txt              # Contains the list of available products.
+    └── Users.txt                 # Stores user-related information.
 
 ```
 
