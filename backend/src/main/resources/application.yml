@@ -35,3 +35,10 @@ info:
   app:
     name: Cartiva Backend
     version: "@project.version@"
+
+cartiva:
+  security:
+    jwt:
+      secret: ${CARTIVA_JWT_SECRET:cartiva-local-development-secret-change-me}
+      issuer: ${CARTIVA_JWT_ISSUER:https://cartiva.local}
+      access-token-ttl: ${CARTIVA_ACCESS_TOKEN_TTL:PT15M}

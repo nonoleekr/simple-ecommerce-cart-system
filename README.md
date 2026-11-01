@@ -80,12 +80,15 @@ mvn -f backend/pom.xml spring-boot:run
 Once started:
 
 - API metadata: `http://localhost:8080/api/v1/system`
+- Customer registration: `POST http://localhost:8080/api/v1/auth/register`
+- Customer login: `POST http://localhost:8080/api/v1/auth/login`
 - Health check: `http://localhost:8080/actuator/health`
 - API documentation: `http://localhost:8080/swagger-ui.html`
 
 Database configuration can be overridden with `CARTIVA_DB_URL`,
-`CARTIVA_DB_USERNAME`, and `CARTIVA_DB_PASSWORD`. The checked-in defaults are
-for local development only.
+`CARTIVA_DB_USERNAME`, and `CARTIVA_DB_PASSWORD`. Set `CARTIVA_JWT_SECRET` to a
+random value of at least 32 bytes outside local development. The checked-in
+defaults are for local development only.
 
 ---
 
