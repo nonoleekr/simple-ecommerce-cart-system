@@ -63,6 +63,30 @@ remain in memory for the current application session — **no database required*
 - **UI:** Java Swing
 - **File I/O:** Standard Java I/O (`FileReader`, `FileWriter`)
 
+The ongoing Cartiva modernization adds a separate Spring Boot REST API with
+PostgreSQL, Flyway migrations, health endpoints, and generated OpenAPI
+documentation under [`backend/`](backend/). The original Swing application is
+kept intact as the legacy assignment baseline.
+
+### Cartiva backend development
+
+Requirements: JDK 25, Maven 3.6.3+, and Docker with Docker Compose.
+
+```bash
+docker compose up -d postgres
+mvn -f backend/pom.xml spring-boot:run
+```
+
+Once started:
+
+- API metadata: `http://localhost:8080/api/v1/system`
+- Health check: `http://localhost:8080/actuator/health`
+- API documentation: `http://localhost:8080/swagger-ui.html`
+
+Database configuration can be overridden with `CARTIVA_DB_URL`,
+`CARTIVA_DB_USERNAME`, and `CARTIVA_DB_PASSWORD`. The checked-in defaults are
+for local development only.
+
 ---
 
 ## 🚀 Setup & Installation

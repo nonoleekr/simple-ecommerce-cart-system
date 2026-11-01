@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: cartiva-backend
+  datasource:
+    url: ${CARTIVA_DB_URL:jdbc:postgresql://localhost:5432/cartiva}
+    username: ${CARTIVA_DB_USERNAME:cartiva}
+    password: ${CARTIVA_DB_PASSWORD:cartiva_local}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+info:
+  app:
+    name: Cartiva Backend
+    version: "@project.version@"

@@ -2,7 +2,9 @@
 # Ignore compiled class files and binary output
 bin/
 target/
+.m2/
 *.class
+.env
 
 # Ignore VS Code settings folder
 .vscode/
