@@ -29,7 +29,8 @@ svg { width: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-l
 .brand-mark { width: 31px; height: 25px; display: inline-block; background: var(--accent); border-radius: 7px 7px 7px 3px; transform: rotate(-38deg); position: relative; }
 .brand-mark::after { content: ""; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #fff; top: 5px; right: 5px; }
 nav { display: flex; align-self: stretch; gap: 38px; align-items: center; }
-nav a { height: 100%; display: grid; place-items: center; font-size: 15px; font-weight: 600; position: relative; }
+nav a, nav button { height: 100%; display: grid; place-items: center; font-size: 15px; font-weight: 600; position: relative; }
+nav button { border: 0; background: transparent; cursor: pointer; }
 nav a.active { color: var(--accent); }
 nav a.active::after { content: ""; height: 3px; border-radius: 3px; position: absolute; left: 0; right: 0; bottom: 12px; background: var(--accent); }
 .search-field { height: 50px; max-width: 590px; justify-self: center; width: 100%; display: flex; align-items: center; gap: 13px; padding: 0 20px; border-radius: 13px; background: var(--surface); color: #667085; border: 1px solid transparent; transition: border-color .18s ease, box-shadow .18s ease; }
@@ -81,6 +82,36 @@ nav a.active::after { content: ""; height: 3px; border-radius: 3px; position: ab
 .product-footer button svg { width: 21px; }
 .empty-state { padding: 70px 0; color: var(--muted); text-align: center; }
 
+.overlay { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 20px; background: rgba(17,19,26,.46); backdrop-filter: blur(5px); }
+.dialog { width: min(100%, 470px); max-height: calc(100vh - 40px); overflow: auto; border-radius: 18px; background: #fff; box-shadow: 0 30px 80px rgba(16,24,40,.24); }
+.dialog.wide { width: min(100%, 720px); }
+.dialog > header { display: flex; align-items: center; justify-content: space-between; padding: 24px 26px 18px; border-bottom: 1px solid var(--border); }
+.dialog > header h2 { margin: 0; font-size: 27px; letter-spacing: -.035em; }
+.dialog > header button { width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 9px; background: var(--surface); cursor: pointer; }
+.dialog > header svg { width: 20px; }
+.stack-form { display: grid; gap: 17px; padding: 25px 26px 28px; }
+.stack-form label { display: grid; gap: 7px; color: #344054; font-size: 13px; font-weight: 700; }
+.stack-form input { height: 48px; width: 100%; padding: 0 14px; border: 1px solid #cfd5dc; border-radius: 9px; outline: none; }
+.stack-form input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px #fff0eb; }
+.form-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.submit-button { min-height: 50px; padding: 0 20px; border: 0; border-radius: 9px; background: var(--accent); color: #fff; font-weight: 750; cursor: pointer; }
+.submit-button:disabled { opacity: .58; cursor: wait; }
+.text-button { border: 0; background: transparent; color: var(--accent); font-size: 13px; font-weight: 700; cursor: pointer; }
+.form-error { margin: 0; color: var(--danger); font-size: 13px; }
+.cart-list, .order-list { padding: 4px 26px; }
+.cart-row, .order-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 22px; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); }
+.cart-row h3, .order-row h3 { margin: 0 0 6px; font-size: 16px; }
+.cart-row p, .order-row p { margin: 0; color: var(--muted); font-size: 13px; }
+.quantity-control { display: flex; align-items: center; gap: 11px; }
+.quantity-control button { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; }
+.quantity-control svg { width: 16px; }
+.cart-summary { display: grid; gap: 18px; padding: 22px 26px 26px; }
+.cart-summary div { display: flex; justify-content: space-between; align-items: center; }
+.cart-summary strong { font-size: 23px; }
+.order-row { grid-template-columns: minmax(0, 1fr) auto; }
+.order-status { display: inline-block; margin-bottom: 8px; color: var(--success); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+.toast { position: fixed; right: 22px; bottom: 22px; z-index: 60; max-width: min(430px, calc(100vw - 44px)); padding: 15px 18px; border: 0; border-radius: 10px; background: var(--ink); color: #fff; box-shadow: 0 14px 35px rgba(16,24,40,.22); cursor: pointer; }
+
 @media (max-width: 1100px) {
   .site-header { grid-template-columns: auto minmax(230px, 1fr) auto auto; gap: 18px; }
   nav { display: none; }
@@ -93,10 +124,12 @@ nav a.active::after { content: ""; height: 3px; border-radius: 3px; position: ab
 }
 
 @media (max-width: 720px) {
-  .site-header { height: auto; min-height: 70px; padding: 12px 18px; grid-template-columns: 1fr auto auto; gap: 8px; }
-  .brand { font-size: 24px; }
+  .site-header { height: auto; min-height: 70px; padding: 12px 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .brand { margin-right: auto; font-size: 24px; }
   .brand-mark { width: 27px; height: 22px; }
-  .search-field { order: 4; grid-column: 1 / -1; max-width: none; height: 46px; }
+  .search-field { order: 4; flex-basis: 100%; max-width: none; height: 46px; }
+  .header-cart { position: absolute; top: 12px; right: 62px; }
+  .account-button { position: absolute; top: 15px; right: 18px; }
   .account-button b { display: none; }
   .hero { grid-template-columns: 1fr; }
   .hero-copy { padding: 50px 22px 43px; }
@@ -111,6 +144,11 @@ nav a.active::after { content: ""; height: 3px; border-radius: 3px; position: ab
   .product-toolbar select { width: 100%; }
   .product-grid { grid-template-columns: 1fr; gap: 18px; }
   .product-image-wrap { aspect-ratio: 1.42; }
+  .overlay { padding: 10px; align-items: end; }
+  .dialog, .dialog.wide { width: 100%; max-height: calc(100vh - 20px); border-radius: 17px 17px 10px 10px; }
+  .cart-row { grid-template-columns: 1fr auto; }
+  .cart-row > strong { grid-column: 1; }
+  .form-pair { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

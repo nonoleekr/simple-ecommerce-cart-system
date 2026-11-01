@@ -1,190 +1,70 @@
-import { useEffect, useMemo, useState } from "react";
-import { fetchProducts } from "./api";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { addCartItem, checkout, fetchCart, fetchOrders, fetchProducts, login, register, removeCartItem, updateCartItem } from "./api";
 import { featuredProducts } from "./data";
-import type { Category, Product } from "./types";
+import type { Cart, Category, Order, Product, Session } from "./types";
 
 const categories: Category[] = ["All", "Electronics", "Fashion", "Home & Living"];
+const money = (value: number) => new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR" }).format(value);
+const emptyCart: Cart = { id: "", items: [], totalQuantity: 0, subtotal: 0 };
 
-function SearchIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/></svg>;
+function Icon({ name }: { name: "search" | "cart" | "arrow" | "close" | "minus" | "plus" }) {
+  const paths = {
+    search: <><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/></>,
+    cart: <><path d="M3 4h2l2 11h10l2-7H6"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></>,
+    arrow: <path d="M5 12h14M14 7l5 5-5 5"/>, close: <path d="m6 6 12 12M18 6 6 18"/>,
+    minus: <path d="M6 12h12"/>, plus: <path d="M12 6v12M6 12h12"/>
+  };
+  return <svg viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>;
 }
 
-function CartIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2 11h10l2-7H6"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg>;
+function Header({ cartCount, query, user, onQueryChange, onCart, onAccount, onOrders }: { cartCount: number; query: string; user?: string; onQueryChange: (value: string) => void; onCart: () => void; onAccount: () => void; onOrders: () => void }) {
+  return <header className="site-header">
+    <a className="brand" href="#top"><span className="brand-mark" aria-hidden="true"/>Cartiva</a>
+    <nav aria-label="Primary navigation"><a className="active" href="#products">Discover</a><a href="#products">Categories</a><button type="button" onClick={onOrders}>Orders</button></nav>
+    <label className="search-field"><span className="sr-only">Search products</span><Icon name="search"/><input value={query} onChange={(e) => onQueryChange(e.target.value)} placeholder="Search products"/></label>
+    <button className="header-cart" type="button" onClick={onCart} aria-label={`Cart with ${cartCount} items`}><Icon name="cart"/>{cartCount > 0 && <span>{cartCount}</span>}</button>
+    <button className="account-button" type="button" onClick={onAccount}><span>{user?.[0]?.toUpperCase() ?? "?"}</span><b>{user ?? "Sign in"}</b></button>
+  </header>;
 }
 
-function ArrowIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"/></svg>;
-}
+function Hero() { return <section className="hero" id="top"><div className="hero-copy"><h1>Find something<br/>worth keeping</h1><p>Independent sellers, useful finds, and a checkout that stays simple.</p><a className="primary-action" href="#products">Explore products <Icon name="arrow"/></a></div><img src="/assets/storefront-hero.png" alt="Headphones, keyboard, weekender bag, and table lamp"/></section>; }
 
-type HeaderProps = {
-  cartCount: number;
-  query: string;
-  onQueryChange: (value: string) => void;
-};
-
-function Header({ cartCount, query, onQueryChange }: HeaderProps) {
-  return (
-    <header className="site-header">
-      <a className="brand" href="#top" aria-label="Cartiva home">
-        <span className="brand-mark" aria-hidden="true" />
-        Cartiva
-      </a>
-      <nav aria-label="Primary navigation">
-        <a className="active" href="#products">Discover</a>
-        <a href="#products">Categories</a>
-        <a href="#orders">Orders</a>
-      </nav>
-      <label className="search-field">
-        <span className="sr-only">Search products</span>
-        <SearchIcon />
-        <input
-          value={query}
-          onChange={(event) => onQueryChange(event.target.value)}
-          placeholder="Search products"
-        />
-      </label>
-      <button className="header-cart" type="button" aria-label={`Cart with ${cartCount} items`}>
-        <CartIcon />
-        {cartCount > 0 ? <span>{cartCount}</span> : null}
-      </button>
-      <button className="account-button" type="button" aria-label="Account menu">
-        <span aria-hidden="true">A</span>
-        <b>Alex</b>
-      </button>
-    </header>
-  );
-}
-
-function Hero() {
-  return (
-    <section className="hero" id="top">
-      <div className="hero-copy">
-        <h1>Find something<br />worth keeping</h1>
-        <p>Independent sellers, useful finds, and a checkout that stays simple.</p>
-        <a className="primary-action" href="#products">Explore products <ArrowIcon /></a>
-      </div>
-      <img src="/assets/storefront-hero.png" alt="Headphones, keyboard, weekender bag, and table lamp" />
-    </section>
-  );
-}
-
-type ProductCardProps = { product: Product; onAdd: () => void };
-
-function ProductCard({ product, onAdd }: ProductCardProps) {
+function ProductCard({ product, onAdd }: { product: Product; onAdd: () => void }) {
   const lowStock = product.stockQuantity <= 4;
-  return (
-    <article className="product-card">
-      <div className="product-image-wrap">
-        <img src={product.image} alt={product.name} />
-        <span className="corner-detail" aria-hidden="true" />
-      </div>
-      <div className="product-content">
-        <h3>{product.name}</h3>
-        <p className="seller">By {product.sellerName}</p>
-        <div className="product-footer">
-          <div>
-            <strong>{new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR" }).format(product.price)}</strong>
-            <p className={lowStock ? "stock low" : "stock"}>
-              <span aria-hidden="true" /> {lowStock ? `Only ${product.stockQuantity} left` : "In stock"}
-            </p>
-          </div>
-          <button type="button" onClick={onAdd} aria-label={`Add ${product.name} to cart`}>
-            <CartIcon />
-          </button>
-        </div>
-      </div>
-    </article>
-  );
+  return <article className="product-card"><div className="product-image-wrap"><img src={product.image} alt={product.name}/><span className="corner-detail" aria-hidden="true"/></div><div className="product-content"><h3>{product.name}</h3><p className="seller">By {product.sellerName}</p><div className="product-footer"><div><strong>{money(product.price)}</strong><p className={lowStock ? "stock low" : "stock"}><span aria-hidden="true"/> {lowStock ? `Only ${product.stockQuantity} left` : "In stock"}</p></div><button type="button" onClick={onAdd} aria-label={`Add ${product.name} to cart`}><Icon name="cart"/></button></div></div></article>;
 }
 
-type ProductSectionProps = {
-  products: Product[];
-  selectedCategory: Category;
-  onCategoryChange: (category: Category) => void;
-  sort: string;
-  onSortChange: (sort: string) => void;
-  onAdd: (product: Product) => void;
-};
-
-function ProductSection(props: ProductSectionProps) {
-  return (
-    <section className="products-section" id="products">
-      <div className="product-toolbar">
-        <h2>Fresh finds</h2>
-        <div className="category-list" aria-label="Product categories">
-          {categories.map((category) => (
-            <button
-              className={props.selectedCategory === category ? "selected" : ""}
-              type="button"
-              key={category}
-              onClick={() => props.onCategoryChange(category)}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-        <select value={props.sort} onChange={(event) => props.onSortChange(event.target.value)} aria-label="Sort products">
-          <option value="newest">Newest</option>
-          <option value="price-asc">Price: low to high</option>
-          <option value="price-desc">Price: high to low</option>
-          <option value="name">Name</option>
-        </select>
-      </div>
-      {props.products.length > 0 ? (
-        <div className="product-grid">
-          {props.products.map((product) => (
-            <ProductCard key={product.id} product={product} onAdd={() => props.onAdd(product)} />
-          ))}
-        </div>
-      ) : <p className="empty-state">No products match your search.</p>}
-    </section>
-  );
+function Dialog({ title, onClose, children, wide = false }: { title: string; onClose: () => void; children: ReactNode; wide?: boolean }) {
+  return <div className="overlay" role="presentation" onMouseDown={(e) => e.target === e.currentTarget && onClose()}><section className={`dialog ${wide ? "wide" : ""}`} role="dialog" aria-modal="true" aria-label={title}><header><h2>{title}</h2><button type="button" onClick={onClose} aria-label="Close"><Icon name="close"/></button></header>{children}</section></div>;
 }
+
+function AuthDialog({ onClose, onAuthenticated }: { onClose: () => void; onAuthenticated: (session: Session) => void }) {
+  const [mode, setMode] = useState<"login" | "register">("login"); const [error, setError] = useState(""); const [busy, setBusy] = useState(false);
+  async function submit(e: FormEvent<HTMLFormElement>) { e.preventDefault(); setBusy(true); setError(""); const values = Object.fromEntries(new FormData(e.currentTarget)); try { if (mode === "register") await register(values as { username: string; email: string; password: string; displayName: string }); const session = await login(String(mode === "login" ? values.identifier : values.email), String(values.password)); onAuthenticated(session); } catch (err) { setError(err instanceof Error ? err.message : "Unable to continue"); } finally { setBusy(false); } }
+  return <Dialog title={mode === "login" ? "Welcome back" : "Create your account"} onClose={onClose}><form className="stack-form" onSubmit={submit}>{mode === "register" && <><label>Display name<input name="displayName" required maxLength={100}/></label><label>Username<input name="username" required minLength={3}/></label><label>Email<input name="email" type="email" required/></label></>}{mode === "login" && <label>Email or username<input name="identifier" required autoFocus/></label>}<label>Password<input name="password" type="password" minLength={12} required/></label>{error && <p className="form-error">{error}</p>}<button className="submit-button" disabled={busy}>{busy ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}</button><button className="text-button" type="button" onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); }}>{mode === "login" ? "New to Cartiva? Create an account" : "Already have an account? Sign in"}</button></form></Dialog>;
+}
+
+function CartDialog({ cart, busy, onClose, onQuantity, onCheckout }: { cart: Cart; busy: boolean; onClose: () => void; onQuantity: (id: string, quantity: number) => void; onCheckout: () => void }) {
+  return <Dialog title="Your cart" onClose={onClose} wide><div className="cart-list">{cart.items.length === 0 ? <p className="empty-state">Your cart is ready for a great find.</p> : cart.items.map((item) => <article className="cart-row" key={item.productId}><div><h3>{item.productName}</h3><p>{money(item.unitPrice)} each</p></div><div className="quantity-control"><button onClick={() => onQuantity(item.productId, item.quantity - 1)} aria-label="Decrease quantity"><Icon name="minus"/></button><b>{item.quantity}</b><button onClick={() => onQuantity(item.productId, item.quantity + 1)} disabled={item.quantity >= item.availableStock} aria-label="Increase quantity"><Icon name="plus"/></button></div><strong>{money(item.subtotal)}</strong></article>)}</div>{cart.items.length > 0 && <footer className="cart-summary"><div><span>Subtotal</span><strong>{money(cart.subtotal)}</strong></div><button className="submit-button" onClick={onCheckout} disabled={busy}>Continue to checkout</button></footer>}</Dialog>;
+}
+
+function CheckoutDialog({ session, onClose, onComplete }: { session: Session; onClose: () => void; onComplete: (order: Order) => void }) {
+  const [error, setError] = useState(""); const [busy, setBusy] = useState(false);
+  async function submit(e: FormEvent<HTMLFormElement>) { e.preventDefault(); setBusy(true); try { const values = Object.fromEntries(new FormData(e.currentTarget)); onComplete(await checkout(session.accessToken, values as { recipientName: string; addressLine1: string; city: string; postalCode: string; country: string })); } catch (err) { setError(err instanceof Error ? err.message : "Checkout failed"); setBusy(false); } }
+  return <Dialog title="Delivery details" onClose={onClose}><form className="stack-form" onSubmit={submit}><label>Recipient<input name="recipientName" defaultValue={session.user.displayName} required/></label><label>Address<input name="addressLine1" required/></label><div className="form-pair"><label>City<input name="city" required/></label><label>Postcode<input name="postalCode" required/></label></div><label>Country<input name="country" defaultValue="Malaysia" required/></label>{error && <p className="form-error">{error}</p>}<button className="submit-button" disabled={busy}>{busy ? "Placing order…" : "Place simulated order"}</button></form></Dialog>;
+}
+
+function OrdersDialog({ orders, onClose }: { orders: Order[]; onClose: () => void }) { return <Dialog title="Order history" onClose={onClose} wide><div className="order-list">{orders.length === 0 ? <p className="empty-state">No orders yet.</p> : orders.map((order) => <article className="order-row" key={order.id}><div><span className="order-status">{order.status}</span><h3>{order.items.map((item) => item.productName).join(", ")}</h3><p>{new Date(order.createdAt).toLocaleDateString("en-MY", { dateStyle: "medium" })} · Delivering to {order.city}</p></div><strong>{money(order.totalAmount)}</strong></article>)}</div></Dialog>; }
 
 export function App() {
-  const [products, setProducts] = useState(featuredProducts);
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<Category>("All");
-  const [sort, setSort] = useState("newest");
-  const [cartCount, setCartCount] = useState(0);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchProducts(controller.signal)
-      .then((loaded) => { if (loaded.length > 0) setProducts(loaded); })
-      .catch(() => undefined);
-    return () => controller.abort();
-  }, []);
-
-  const visibleProducts = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    const filtered = products.filter((product) =>
-      (category === "All" || product.category === category) &&
-      (normalized === "" || product.name.toLowerCase().includes(normalized))
-    );
-    return [...filtered].sort((left, right) => {
-      if (sort === "price-asc") return left.price - right.price;
-      if (sort === "price-desc") return right.price - left.price;
-      if (sort === "name") return left.name.localeCompare(right.name);
-      return 0;
-    });
-  }, [products, category, query, sort]);
-
-  return (
-    <div className="app-shell">
-      <Header cartCount={cartCount} query={query} onQueryChange={setQuery} />
-      <main>
-        <Hero />
-        <ProductSection
-          products={visibleProducts}
-          selectedCategory={category}
-          onCategoryChange={setCategory}
-          sort={sort}
-          onSortChange={setSort}
-          onAdd={() => setCartCount((count) => count + 1)}
-        />
-      </main>
-    </div>
-  );
+  const [products, setProducts] = useState(featuredProducts), [query, setQuery] = useState(""), [category, setCategory] = useState<Category>("All"), [sort, setSort] = useState("newest");
+  const [session, setSession] = useState<Session | null>(() => { try { return JSON.parse(localStorage.getItem("cartiva-session") ?? "null") as Session | null; } catch { return null; } });
+  const [cart, setCart] = useState<Cart>(emptyCart), [orders, setOrders] = useState<Order[]>([]), [view, setView] = useState<"auth" | "cart" | "checkout" | "orders" | null>(null), [notice, setNotice] = useState(""), [busy, setBusy] = useState(false);
+  useEffect(() => { const controller = new AbortController(); fetchProducts(controller.signal).then((p) => p.length && setProducts(p)).catch(() => undefined); return () => controller.abort(); }, []);
+  useEffect(() => { if (session) { localStorage.setItem("cartiva-session", JSON.stringify(session)); fetchCart(session.accessToken).then(setCart).catch(() => { localStorage.removeItem("cartiva-session"); setSession(null); }); } else setCart(emptyCart); }, [session]);
+  const visibleProducts = useMemo(() => products.filter((p) => (category === "All" || p.category === category) && (!query.trim() || p.name.toLowerCase().includes(query.trim().toLowerCase()))).sort((a, b) => sort === "price-asc" ? a.price - b.price : sort === "price-desc" ? b.price - a.price : sort === "name" ? a.name.localeCompare(b.name) : 0), [products, category, query, sort]);
+  async function add(product: Product) { if (!session) { setView("auth"); setNotice("Sign in to save items to your cart."); return; } setBusy(true); try { setCart(await addCartItem(session.accessToken, product.id)); setNotice(`${product.name} added to your cart.`); } catch (e) { setNotice(e instanceof Error ? e.message : "Unable to add item"); } finally { setBusy(false); } }
+  async function changeQuantity(id: string, quantity: number) { if (!session) return; setBusy(true); try { setCart(quantity < 1 ? await removeCartItem(session.accessToken, id) : await updateCartItem(session.accessToken, id, quantity)); } finally { setBusy(false); } }
+  async function openOrders() { if (!session) { setView("auth"); return; } setBusy(true); try { setOrders(await fetchOrders(session.accessToken)); setView("orders"); } finally { setBusy(false); } }
+  return <div className="app-shell"><Header cartCount={cart.totalQuantity} query={query} user={session?.user.displayName} onQueryChange={setQuery} onCart={() => setView(session ? "cart" : "auth")} onAccount={() => session ? (localStorage.removeItem("cartiva-session"), setSession(null), setNotice("You’re signed out.")) : setView("auth")} onOrders={openOrders}/><main><Hero/><section className="products-section" id="products"><div className="product-toolbar"><h2>Fresh finds</h2><div className="category-list">{categories.map((item) => <button className={category === item ? "selected" : ""} key={item} onClick={() => setCategory(item)}>{item}</button>)}</div><select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort products"><option value="newest">Newest</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="name">Name</option></select></div>{visibleProducts.length ? <div className="product-grid">{visibleProducts.map((p) => <ProductCard key={p.id} product={p} onAdd={() => add(p)}/>)}</div> : <p className="empty-state">No products match your search.</p>}</section></main>{notice && <button className="toast" onClick={() => setNotice("")}>{notice}</button>}{view === "auth" && <AuthDialog onClose={() => setView(null)} onAuthenticated={(value) => { setSession(value); setView(null); setNotice(`Welcome, ${value.user.displayName}.`); }}/>} {view === "cart" && <CartDialog cart={cart} busy={busy} onClose={() => setView(null)} onQuantity={changeQuantity} onCheckout={() => setView("checkout")}/>} {view === "checkout" && session && <CheckoutDialog session={session} onClose={() => setView("cart")} onComplete={(order) => { setCart(emptyCart); setOrders((current) => [order, ...current]); setView("orders"); setNotice("Order placed successfully."); }}/>} {view === "orders" && <OrdersDialog orders={orders} onClose={() => setView(null)}/>}</div>;
 }
