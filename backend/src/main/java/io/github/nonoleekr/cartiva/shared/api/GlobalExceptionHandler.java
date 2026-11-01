@@ -6,6 +6,7 @@ import io.github.nonoleekr.cartiva.identity.InvalidCredentialsException;
 import io.github.nonoleekr.cartiva.catalog.CatalogNotFoundException;
 import io.github.nonoleekr.cartiva.catalog.DuplicateProductException;
 import io.github.nonoleekr.cartiva.cart.CartOperationException;
+import io.github.nonoleekr.cartiva.order.CheckoutException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.List;
@@ -17,6 +18,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(CheckoutException.class)
+    public ResponseEntity<ApiError> handleCheckout(
+        CheckoutException exception,
+        HttpServletRequest request
+    ) {
+        return createResponse(
+            HttpStatus.CONFLICT,
+            exception.getMessage(),
+            request.getRequestURI(),
+            List.of()
+        );
+    }
+
     @ExceptionHandler(CartOperationException.class)
     public ResponseEntity<ApiError> handleCartOperation(
         CartOperationException exception,

@@ -7,7 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.repository.query.Param;
+import jakarta.persistence.LockModeType;
 
 public interface ProductRepository extends JpaRepository<Product, UUID> {
     boolean existsBySlug(String slug);
@@ -17,6 +19,11 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     @EntityGraph(attributePaths = {"category", "seller"})
     Optional<Product> findByIdAndStatus(UUID id, ProductStatus status);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @EntityGraph(attributePaths = {"category", "seller"})
+    @Query("SELECT p FROM Product p WHERE p.id = :id")
+    Optional<Product> findByIdForUpdate(@Param("id") UUID id);
 
     @EntityGraph(attributePaths = {"category", "seller"})
     @Query("""

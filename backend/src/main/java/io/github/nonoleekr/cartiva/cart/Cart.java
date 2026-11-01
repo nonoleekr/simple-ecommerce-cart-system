@@ -52,6 +52,10 @@ public class Cart {
         items.remove(item);
     }
 
+    public void clear() {
+        items.clear();
+    }
+
     @PrePersist
     void onCreate() {
         Instant now = Instant.now();
