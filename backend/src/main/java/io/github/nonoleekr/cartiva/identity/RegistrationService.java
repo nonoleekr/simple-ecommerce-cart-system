@@ -23,6 +23,15 @@ public class RegistrationService {
 
     @Transactional
     public UserResponse registerCustomer(RegistrationRequest request) {
+        return register(request, RoleName.CUSTOMER);
+    }
+
+    @Transactional
+    public UserResponse registerSeller(RegistrationRequest request) {
+        return register(request, RoleName.SELLER);
+    }
+
+    private UserResponse register(RegistrationRequest request, RoleName roleName) {
         String username = request.username().trim().toLowerCase(Locale.ROOT);
         String email = request.email().trim().toLowerCase(Locale.ROOT);
         String displayName = request.displayName().trim();
@@ -34,14 +43,14 @@ public class RegistrationService {
             throw new DuplicateIdentityException("Email is already registered");
         }
 
-        Role customerRole = roleRepository.findByName(RoleName.CUSTOMER)
-            .orElseThrow(() -> new IdentityConfigurationException("Customer role is not configured"));
+        Role role = roleRepository.findByName(roleName)
+            .orElseThrow(() -> new IdentityConfigurationException(roleName + " role is not configured"));
         User user = new User(
             username,
             email,
             passwordEncoder.encode(request.password()),
             displayName,
-            customerRole
+            role
         );
 
         return UserResponse.from(userRepository.save(user));

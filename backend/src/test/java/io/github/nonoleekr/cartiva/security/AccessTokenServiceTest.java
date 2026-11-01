@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 class AccessTokenServiceTest {
     @Test
@@ -44,5 +46,12 @@ class AccessTokenServiceTest {
         assertThat(decodedToken.getClaimAsString("username")).isEqualTo("shopper");
         assertThat(decodedToken.getClaimAsStringList("roles")).containsExactly("CUSTOMER");
         assertThat(decodedToken.getExpiresAt()).isEqualTo(issuedToken.expiresAt());
+
+        JwtAuthenticationToken authentication = (JwtAuthenticationToken) configuration
+            .jwtAuthenticationConverter()
+            .convert(decodedToken);
+        assertThat(authentication.getAuthorities())
+            .extracting(GrantedAuthority::getAuthority)
+            .contains("ROLE_CUSTOMER", "FACTOR_BEARER");
     }
 }

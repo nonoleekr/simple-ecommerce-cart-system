@@ -32,6 +32,13 @@ public class RegistrationController {
         return ResponseEntity.created(URI.create("/api/v1/users/" + user.id())).body(user);
     }
 
+    @PostMapping("/register/seller")
+    @Operation(summary = "Register a seller account")
+    public ResponseEntity<UserResponse> registerSeller(@Valid @RequestBody RegistrationRequest request) {
+        UserResponse user = registrationService.registerSeller(request);
+        return ResponseEntity.created(URI.create("/api/v1/users/" + user.id())).body(user);
+    }
+
     @PostMapping("/login")
     @Operation(summary = "Log in with a username or email")
     public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginRequest request) {
