@@ -8,6 +8,7 @@ target/
 node_modules/
 dist/
 .tools/
+*.tsbuildinfo
 
 # Ignore VS Code settings folder
 .vscode/
