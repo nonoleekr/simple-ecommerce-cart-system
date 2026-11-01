@@ -1,6 +1,7 @@
 " .gitignore "
 # Ignore compiled class files and binary output
 bin/
+target/
 *.class
 
 # Ignore VS Code settings folder

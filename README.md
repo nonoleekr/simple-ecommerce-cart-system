@@ -15,7 +15,8 @@ Users can:
 - Add/remove items from their shopping cart
 - Place orders using a FIFO (First-In-First-Out) queue
 
-All data (products, carts, orders) is stored in `.txt` files — **no database required**.
+Products, users, and orders are stored in local `.txt` files. Shopping carts
+remain in memory for the current application session — **no database required**.
 
 ---
 
@@ -66,38 +67,62 @@ All data (products, carts, orders) is stored in `.txt` files — **no database r
 
 ## 🚀 Setup & Installation
 
-1. **Install JDK**  
-   Make sure Java is installed on your system.
+1. **Install JDK 25 (latest LTS)**
+   Make sure Java 25 or a newer compatible JDK is installed on your system.
 
 2. **Clone the Repository**  
    ```bash
    git clone https://github.com/your-username/simple-ecommerce-cart-system.git
    cd simple-ecommerce-cart-system
 
-3. **Compile the Code**
+3. **Create Local Data Files**
 
-   ```bash
-   javac -d bin src/**/*.java
+   Create a `data` directory containing `products.txt`, `users.txt`, and
+   `orders.txt`. These runtime files are intentionally ignored by Git. Product
+   records use this format:
+
+   ```text
+   P001,Keyboard,25.00,10
    ```
 
-4. **Run the Application**
+4. **Build and Test**
 
    ```bash
-   java -cp bin ui.MainFrame
+   mvn clean test
    ```
 
-   > Replace `ui.MainFrame` with the correct path to your main class if different.
+5. **Run the Application**
+
+   ```bash
+   mvn package
+   java -cp target/classes App
+   ```
 
 ---
 
 ## 📊 Performance Analysis
 
-The system includes a utility that uses `System.nanoTime()` to measure the time it takes to:
+The system includes a separate educational timing utility that uses
+`System.nanoTime()` to measure the time it takes to:
 
 * Add 100 and 150 items to the cart
 * Remove 100 and 150 items from the cart
 
 These results are discussed in the final project report, with comparisons to theoretical Big O complexities.
+
+Run the cart timings separately from the desktop application:
+
+```bash
+java -cp target/classes benchmark.PerformanceBenchmarks
+```
+
+The legacy user timing also rewrites `data/users.txt`, so it is disabled by
+default. Run it only with disposable data by adding
+`--include-user-persistence`.
+
+> `Cart.addItem()` searches for an existing product before inserting. Its
+> worst-case complexity is therefore O(n), even though insertion at the head
+> is O(1). Adding n distinct products with the current implementation is O(n²).
 
 ---
 
