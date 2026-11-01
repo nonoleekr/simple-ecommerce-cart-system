@@ -1,4 +1,4 @@
-import type { Product } from "./types";
+import type { Cart, Order, Product, Session } from "./types";
 
 type ApiProduct = {
   id: string;
@@ -29,3 +29,24 @@ export async function fetchProducts(signal: AbortSignal): Promise<Product[]> {
     image: productImages[product.slug] ?? "/assets/storefront-hero.png"
   }));
 }
+
+async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
+  const response = await fetch(path, {
+    ...options,
+    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers }
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({})) as { message?: string; detail?: string };
+    throw new Error(body.message ?? body.detail ?? "Something went wrong. Please try again.");
+  }
+  return response.json() as Promise<T>;
+}
+
+export const login = (identifier: string, password: string) => request<Session>("/api/v1/auth/login", { method: "POST", body: JSON.stringify({ identifier, password }) });
+export const register = (input: { username: string; email: string; password: string; displayName: string }) => request<void>("/api/v1/auth/register", { method: "POST", body: JSON.stringify(input) });
+export const fetchCart = (token: string) => request<Cart>("/api/v1/cart", {}, token);
+export const addCartItem = (token: string, productId: string) => request<Cart>("/api/v1/cart/items", { method: "POST", body: JSON.stringify({ productId, quantity: 1 }) }, token);
+export const updateCartItem = (token: string, productId: string, quantity: number) => request<Cart>(`/api/v1/cart/items/${productId}`, { method: "PATCH", body: JSON.stringify({ quantity }) }, token);
+export const removeCartItem = (token: string, productId: string) => request<Cart>(`/api/v1/cart/items/${productId}`, { method: "DELETE" }, token);
+export const checkout = (token: string, input: { recipientName: string; addressLine1: string; city: string; postalCode: string; country: string }) => request<Order>("/api/v1/orders/checkout", { method: "POST", body: JSON.stringify(input) }, token);
+export const fetchOrders = (token: string) => request<Order[]>("/api/v1/orders", {}, token);
