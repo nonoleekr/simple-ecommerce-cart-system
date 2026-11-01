@@ -3,6 +3,8 @@ package io.github.nonoleekr.cartiva.shared.api;
 import io.github.nonoleekr.cartiva.identity.DuplicateIdentityException;
 import io.github.nonoleekr.cartiva.identity.AccountUnavailableException;
 import io.github.nonoleekr.cartiva.identity.InvalidCredentialsException;
+import io.github.nonoleekr.cartiva.catalog.CatalogNotFoundException;
+import io.github.nonoleekr.cartiva.catalog.DuplicateProductException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.List;
@@ -14,6 +16,45 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(CatalogNotFoundException.class)
+    public ResponseEntity<ApiError> handleCatalogNotFound(
+        CatalogNotFoundException exception,
+        HttpServletRequest request
+    ) {
+        return createResponse(
+            HttpStatus.NOT_FOUND,
+            exception.getMessage(),
+            request.getRequestURI(),
+            List.of()
+        );
+    }
+
+    @ExceptionHandler(DuplicateProductException.class)
+    public ResponseEntity<ApiError> handleDuplicateProduct(
+        DuplicateProductException exception,
+        HttpServletRequest request
+    ) {
+        return createResponse(
+            HttpStatus.CONFLICT,
+            exception.getMessage(),
+            request.getRequestURI(),
+            List.of()
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleIllegalArgument(
+        IllegalArgumentException exception,
+        HttpServletRequest request
+    ) {
+        return createResponse(
+            HttpStatus.BAD_REQUEST,
+            exception.getMessage(),
+            request.getRequestURI(),
+            List.of()
+        );
+    }
+
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ApiError> handleInvalidCredentials(
         InvalidCredentialsException exception,

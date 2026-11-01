@@ -72,4 +72,24 @@ class RegistrationServiceTest {
             .isInstanceOf(DuplicateIdentityException.class)
             .hasMessage("Username is already registered");
     }
+
+    @Test
+    void registersSellerAccountsWithTheSellerRole() {
+        Role sellerRole = mock(Role.class);
+        when(sellerRole.getName()).thenReturn(RoleName.SELLER);
+        when(roleRepository.findByName(RoleName.SELLER)).thenReturn(Optional.of(sellerRole));
+        when(passwordEncoder.encode("a-secure-password")).thenReturn("encoded-password");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = registrationService.registerSeller(
+            new RegistrationRequest(
+                "merchant",
+                "merchant@example.com",
+                "a-secure-password",
+                "Merchant"
+            )
+        );
+
+        assertThat(response.roles()).containsExactly(RoleName.SELLER);
+    }
 }
