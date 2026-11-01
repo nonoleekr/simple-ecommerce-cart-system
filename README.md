@@ -85,6 +85,7 @@ Once started:
 - Customer login: `POST http://localhost:8080/api/v1/auth/login`
 - Product catalog: `GET http://localhost:8080/api/v1/products`
 - Categories: `GET http://localhost:8080/api/v1/categories`
+- Customer cart: `GET http://localhost:8080/api/v1/cart`
 - Health check: `http://localhost:8080/actuator/health`
 - API documentation: `http://localhost:8080/swagger-ui.html`
 
