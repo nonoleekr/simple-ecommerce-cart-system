@@ -96,6 +96,19 @@ Database configuration can be overridden with `CARTIVA_DB_URL`,
 random value of at least 32 bytes outside local development. The checked-in
 defaults are for local development only.
 
+### Cartiva storefront development
+
+The React and TypeScript storefront lives in [`frontend/`](frontend/). During
+development, Vite proxies `/api` requests to the Spring Boot backend.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173` for the responsive customer storefront.
+
 ---
 
 ## 🚀 Setup & Installation
