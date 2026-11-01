@@ -5,6 +5,9 @@ target/
 .m2/
 *.class
 .env
+node_modules/
+dist/
+.tools/
 
 # Ignore VS Code settings folder
 .vscode/
