@@ -16,6 +16,9 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     Optional<Product> findBySlugAndStatus(String slug, ProductStatus status);
 
     @EntityGraph(attributePaths = {"category", "seller"})
+    Optional<Product> findByIdAndStatus(UUID id, ProductStatus status);
+
+    @EntityGraph(attributePaths = {"category", "seller"})
     @Query("""
         SELECT p FROM Product p
         WHERE p.status = :status
