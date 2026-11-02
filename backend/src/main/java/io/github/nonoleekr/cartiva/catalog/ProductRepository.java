@@ -1,6 +1,7 @@
 package io.github.nonoleekr.cartiva.catalog;
 
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,13 @@ import jakarta.persistence.LockModeType;
 
 public interface ProductRepository extends JpaRepository<Product, UUID> {
     boolean existsBySlug(String slug);
+    boolean existsBySlugAndIdNot(String slug, UUID id);
+
+    @EntityGraph(attributePaths = {"category", "seller"})
+    List<Product> findAllBySellerIdOrderByCreatedAtDesc(UUID sellerId);
+
+    @EntityGraph(attributePaths = {"category", "seller"})
+    Optional<Product> findByIdAndSellerId(UUID id, UUID sellerId);
 
     @EntityGraph(attributePaths = {"category", "seller"})
     Optional<Product> findBySlugAndStatus(String slug, ProductStatus status);

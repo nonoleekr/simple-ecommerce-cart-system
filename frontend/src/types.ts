@@ -10,9 +10,11 @@ export type Product = {
   stockQuantity: number;
   category: Exclude<Category, "All">;
   image: string;
+  status?: "DRAFT" | "ACTIVE" | "ARCHIVED";
 };
 
-export type User = { id: string; username: string; email: string; displayName: string };
+export type User = { id: string; username: string; email: string; displayName: string; roles: string[] };
+export type CatalogCategory = { id: string; name: string; slug: string };
 export type Session = { accessToken: string; expiresAt: string; user: User };
 export type CartItem = { productId: string; productName: string; productSlug: string; unitPrice: number; quantity: number; subtotal: number; availableStock: number };
 export type Cart = { id: string; items: CartItem[]; totalQuantity: number; subtotal: number };

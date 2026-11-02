@@ -107,6 +107,17 @@ public class Product {
     public ProductStatus getStatus() { return status; }
     public Instant getCreatedAt() { return createdAt; }
 
+    public void update(Category category, String name, String slug, String description, BigDecimal price, int stockQuantity) {
+        this.category = category;
+        this.name = name;
+        this.slug = slug;
+        this.description = description;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+    }
+
+    public void setStatus(ProductStatus status) { this.status = status; }
+
     public void decreaseStock(int quantity) {
         if (quantity <= 0 || quantity > stockQuantity) {
             throw new IllegalArgumentException("Invalid inventory deduction");
