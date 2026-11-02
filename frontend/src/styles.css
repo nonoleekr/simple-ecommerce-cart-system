@@ -143,6 +143,20 @@ nav a.active::after { content: ""; height: 3px; border-radius: 3px; position: ab
 .review-list span, .review-list p { color: var(--muted); font-size: 13px; }
 .review-list h4 { margin: 10px 0 6px; }
 .review-list p { margin: 0; line-height: 1.5; }
+.seller-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 24px 26px; background: var(--surface); }
+.seller-form label { display: grid; gap: 6px; color: #344054; font-size: 12px; font-weight: 700; }
+.seller-form label:nth-of-type(3), .seller-form .form-error, .seller-form button { grid-column: 1 / -1; }
+.seller-form input, .seller-form select, .seller-form textarea { width: 100%; border: 1px solid #cfd5dc; border-radius: 8px; background: #fff; padding: 10px 12px; outline: none; }
+.seller-form textarea { min-height: 90px; resize: vertical; }
+.seller-products { padding: 5px 26px 24px; }
+.seller-products article { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 0; border-bottom: 1px solid var(--border); }
+.seller-products h3 { margin: 7px 0 5px; font-size: 16px; }
+.seller-products p { margin: 0; color: var(--muted); font-size: 13px; }
+.seller-products select { min-width: 120px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+.listing-actions { display: flex; align-items: center; gap: 10px; }
+.listing-status { font-size: 10px; font-weight: 800; letter-spacing: .08em; color: var(--muted); }
+.listing-status.active { color: var(--success); }
+.listing-status.archived { color: var(--danger); }
 .toast { position: fixed; right: 22px; bottom: 22px; z-index: 60; max-width: min(430px, calc(100vw - 44px)); padding: 15px 18px; border: 0; border-radius: 10px; background: var(--ink); color: #fff; box-shadow: 0 14px 35px rgba(16,24,40,.22); cursor: pointer; }
 
 @media (max-width: 1100px) {
@@ -189,6 +203,8 @@ nav a.active::after { content: ""; height: 3px; border-radius: 3px; position: ab
   .product-detail { grid-template-columns: 1fr; padding: 20px; }
   .review-form { grid-template-columns: 1fr; }
   .review-form label, .review-form label:nth-of-type(3), .review-form .form-error, .review-form button { grid-column: 1; }
+  .seller-form { grid-template-columns: 1fr; padding: 20px; }
+  .seller-form label, .seller-form label:nth-of-type(3), .seller-form .form-error, .seller-form button { grid-column: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

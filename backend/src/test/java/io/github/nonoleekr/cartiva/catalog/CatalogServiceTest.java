@@ -87,4 +87,39 @@ class CatalogServiceTest {
         assertThat(pageCaptor.getValue().getPageSize()).isEqualTo(100);
         assertThat(pageCaptor.getValue().getSort().getOrderFor("createdAt").isDescending()).isTrue();
     }
+
+    @Test
+    void updatesOnlySellerOwnedProduct() {
+        UUID sellerId = UUID.randomUUID();
+        Product product = product(ProductStatus.DRAFT, 2);
+        Category category = mock(Category.class);
+        when(productRepository.findByIdAndSellerId(product.getId(), sellerId)).thenReturn(Optional.of(product));
+        when(categoryRepository.findBySlug("fashion")).thenReturn(Optional.of(category));
+        when(productRepository.save(product)).thenReturn(product);
+
+        ProductResponse response = catalogService.updateSellerProduct(sellerId, product.getId(), new UpdateProductRequest(
+            "Updated Bag", " FASHION ", " Updated description ", new BigDecimal("89.90"), 7
+        ));
+
+        assertThat(response.name()).isEqualTo("Updated Bag");
+        assertThat(response.slug()).isEqualTo("updated-bag");
+        assertThat(response.stockQuantity()).isEqualTo(7);
+    }
+
+    @Test
+    void requiresInventoryBeforePublishing() {
+        UUID sellerId = UUID.randomUUID();
+        Product product = product(ProductStatus.DRAFT, 0);
+        when(productRepository.findByIdAndSellerId(product.getId(), sellerId)).thenReturn(Optional.of(product));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+            catalogService.updateSellerProductStatus(sellerId, product.getId(), ProductStatus.ACTIVE)
+        ).isInstanceOf(IllegalArgumentException.class).hasMessage("Add inventory before publishing this product");
+    }
+
+    private Product product(ProductStatus status, int stock) {
+        User seller = new User("seller-two", "seller-two@example.com", "hash", "Seller", mock(Role.class));
+        Category category = mock(Category.class);
+        return new Product(seller, category, "Bag", "bag", "Description", BigDecimal.TEN, stock, status);
+    }
 }

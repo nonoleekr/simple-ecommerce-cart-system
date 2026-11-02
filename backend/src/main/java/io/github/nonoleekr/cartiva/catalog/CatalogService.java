@@ -99,6 +99,47 @@ public class CatalogService {
         return ProductResponse.from(productRepository.save(product));
     }
 
+    @Transactional(readOnly = true)
+    public List<ProductResponse> listSellerProducts(UUID sellerId) {
+        return productRepository.findAllBySellerIdOrderByCreatedAtDesc(sellerId).stream()
+            .map(ProductResponse::from)
+            .toList();
+    }
+
+    @Transactional
+    public ProductResponse updateSellerProduct(UUID sellerId, UUID productId, UpdateProductRequest request) {
+        Product product = findSellerProduct(sellerId, productId);
+        Category category = findCategory(request.categorySlug());
+        String name = request.name().trim();
+        String slug = Slugifier.slugify(name);
+        if (slug.isBlank()) throw new IllegalArgumentException("Product name must contain letters or numbers");
+        if (productRepository.existsBySlugAndIdNot(slug, productId)) {
+            throw new DuplicateProductException("A product with this name already exists");
+        }
+        product.update(category, name, slug, request.description().trim(), request.price(), request.stockQuantity());
+        return ProductResponse.from(productRepository.save(product));
+    }
+
+    @Transactional
+    public ProductResponse updateSellerProductStatus(UUID sellerId, UUID productId, ProductStatus status) {
+        Product product = findSellerProduct(sellerId, productId);
+        if (status == ProductStatus.ACTIVE && product.getStockQuantity() < 1) {
+            throw new IllegalArgumentException("Add inventory before publishing this product");
+        }
+        product.setStatus(status);
+        return ProductResponse.from(productRepository.save(product));
+    }
+
+    private Product findSellerProduct(UUID sellerId, UUID productId) {
+        return productRepository.findByIdAndSellerId(productId, sellerId)
+            .orElseThrow(() -> new CatalogNotFoundException("Seller product was not found"));
+    }
+
+    private Category findCategory(String categorySlug) {
+        return categoryRepository.findBySlug(categorySlug.trim().toLowerCase(Locale.ROOT))
+            .orElseThrow(() -> new CatalogNotFoundException("Category was not found"));
+    }
+
     private String normalizeOptional(String value) {
         if (value == null || value.isBlank()) {
             return null;
