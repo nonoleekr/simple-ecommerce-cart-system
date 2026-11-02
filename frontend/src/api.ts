@@ -1,4 +1,4 @@
-import type { Cart, Order, Product, Session } from "./types";
+import type { Cart, Order, Product, ProductReviews, Review, Session } from "./types";
 
 type ApiProduct = {
   id: string;
@@ -7,6 +7,7 @@ type ApiProduct = {
   price: number;
   stockQuantity: number;
   sellerName: string;
+  description: string;
   category: { name: Product["category"] };
 };
 
@@ -61,3 +62,5 @@ export async function fetchWishlist(token: string): Promise<Product[]> {
 }
 export const saveWishlistItem = (token: string, productId: string) => request<void>(`/api/v1/wishlist/items/${productId}`, { method: "PUT" }, token);
 export const removeWishlistItem = (token: string, productId: string) => request<void>(`/api/v1/wishlist/items/${productId}`, { method: "DELETE" }, token);
+export const fetchReviews = (productId: string) => request<ProductReviews>(`/api/v1/products/${productId}/reviews`);
+export const createReview = (token: string, productId: string, input: { rating: number; title: string; comment: string }) => request<Review>(`/api/v1/products/${productId}/reviews`, { method: "POST", body: JSON.stringify(input) }, token);

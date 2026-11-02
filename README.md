@@ -84,6 +84,7 @@ Once started:
 - Seller registration: `POST http://localhost:8080/api/v1/auth/register/seller`
 - Customer login: `POST http://localhost:8080/api/v1/auth/login`
 - Product catalog: `GET http://localhost:8080/api/v1/products`
+- Product reviews: `GET http://localhost:8080/api/v1/products/{productId}/reviews`
 - Categories: `GET http://localhost:8080/api/v1/categories`
 - Customer cart: `GET http://localhost:8080/api/v1/cart`
 - Customer wishlist: `GET http://localhost:8080/api/v1/wishlist`
