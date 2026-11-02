@@ -5,6 +5,7 @@ export type Product = {
   name: string;
   slug: string;
   sellerName: string;
+  description: string;
   price: number;
   stockQuantity: number;
   category: Exclude<Category, "All">;
@@ -16,3 +17,5 @@ export type Session = { accessToken: string; expiresAt: string; user: User };
 export type CartItem = { productId: string; productName: string; productSlug: string; unitPrice: number; quantity: number; subtotal: number; availableStock: number };
 export type Cart = { id: string; items: CartItem[]; totalQuantity: number; subtotal: number };
 export type Order = { id: string; status: string; totalAmount: number; recipientName: string; city: string; country: string; createdAt: string; items: { productId: string; productName: string; quantity: number; unitPrice: number; subtotal: number }[] };
+export type Review = { id: string; rating: number; title: string; comment: string; customerName: string; createdAt: string };
+export type ProductReviews = { averageRating: number; reviewCount: number; reviews: Review[] };

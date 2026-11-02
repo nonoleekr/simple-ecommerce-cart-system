@@ -43,6 +43,7 @@ public class SecurityConfiguration {
                     "/api/v1/auth/login"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/products/**", "/api/v1/categories/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/products/*/reviews").hasRole("CUSTOMER")
                 .requestMatchers(HttpMethod.POST, "/api/v1/seller/products").hasRole("SELLER")
                 .requestMatchers("/api/v1/cart/**").hasRole("CUSTOMER")
                 .requestMatchers("/api/v1/wishlist/**").hasRole("CUSTOMER")
