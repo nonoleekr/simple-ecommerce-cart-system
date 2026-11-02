@@ -55,4 +55,6 @@ public class OrderItem {
     public BigDecimal getUnitPrice() { return unitPrice; }
     public int getQuantity() { return quantity; }
     public BigDecimal getLineTotal() { return lineTotal; }
+    public UUID getSellerId() { return product.getSeller().getId(); }
+    public Product getProduct() { return product; }
 }

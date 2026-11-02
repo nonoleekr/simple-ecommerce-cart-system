@@ -9,6 +9,7 @@ import io.github.nonoleekr.cartiva.cart.CartOperationException;
 import io.github.nonoleekr.cartiva.order.CheckoutException;
 import io.github.nonoleekr.cartiva.wishlist.WishlistOperationException;
 import io.github.nonoleekr.cartiva.review.ReviewOperationException;
+import io.github.nonoleekr.cartiva.order.SellerOrderException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.List;
@@ -20,6 +21,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(SellerOrderException.class)
+    public ResponseEntity<ApiError> handleSellerOrder(SellerOrderException exception, HttpServletRequest request) {
+        return createResponse(HttpStatus.CONFLICT, exception.getMessage(), request.getRequestURI(), List.of());
+    }
+
     @ExceptionHandler(ReviewOperationException.class)
     public ResponseEntity<ApiError> handleReviewOperation(ReviewOperationException exception, HttpServletRequest request) {
         HttpStatus status = exception.getMessage().contains("already reviewed") ? HttpStatus.CONFLICT : HttpStatus.BAD_REQUEST;
