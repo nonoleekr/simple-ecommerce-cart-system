@@ -39,6 +39,7 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
     const body = await response.json().catch(() => ({})) as { message?: string; detail?: string };
     throw new Error(body.message ?? body.detail ?? "Something went wrong. Please try again.");
   }
+  if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
 }
 
@@ -50,3 +51,13 @@ export const updateCartItem = (token: string, productId: string, quantity: numbe
 export const removeCartItem = (token: string, productId: string) => request<Cart>(`/api/v1/cart/items/${productId}`, { method: "DELETE" }, token);
 export const checkout = (token: string, input: { recipientName: string; addressLine1: string; city: string; postalCode: string; country: string }) => request<Order>("/api/v1/orders/checkout", { method: "POST", body: JSON.stringify(input) }, token);
 export const fetchOrders = (token: string) => request<Order[]>("/api/v1/orders", {}, token);
+export async function fetchWishlist(token: string): Promise<Product[]> {
+  const products = await request<ApiProduct[]>("/api/v1/wishlist", {}, token);
+  return products.map((product) => ({
+    ...product,
+    category: product.category.name,
+    image: productImages[product.slug] ?? "/assets/storefront-hero.png"
+  }));
+}
+export const saveWishlistItem = (token: string, productId: string) => request<void>(`/api/v1/wishlist/items/${productId}`, { method: "PUT" }, token);
+export const removeWishlistItem = (token: string, productId: string) => request<void>(`/api/v1/wishlist/items/${productId}`, { method: "DELETE" }, token);

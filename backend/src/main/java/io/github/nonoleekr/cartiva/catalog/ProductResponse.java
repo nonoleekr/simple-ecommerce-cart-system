@@ -16,7 +16,7 @@ public record ProductResponse(
     String sellerName,
     Instant createdAt
 ) {
-    static ProductResponse from(Product product) {
+    public static ProductResponse from(Product product) {
         return new ProductResponse(
             product.getId(),
             product.getName(),

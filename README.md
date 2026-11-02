@@ -86,6 +86,7 @@ Once started:
 - Product catalog: `GET http://localhost:8080/api/v1/products`
 - Categories: `GET http://localhost:8080/api/v1/categories`
 - Customer cart: `GET http://localhost:8080/api/v1/cart`
+- Customer wishlist: `GET http://localhost:8080/api/v1/wishlist`
 - Simulated checkout: `POST http://localhost:8080/api/v1/orders/checkout`
 - Order history: `GET http://localhost:8080/api/v1/orders`
 - Health check: `http://localhost:8080/actuator/health`
