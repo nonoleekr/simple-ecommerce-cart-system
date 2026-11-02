@@ -1,4 +1,4 @@
-import type { Cart, CatalogCategory, Order, Product, ProductReviews, Review, Session } from "./types";
+import type { Cart, CatalogCategory, Order, Product, ProductReviews, Review, SellerOrder, Session } from "./types";
 
 type ApiProduct = {
   id: string;
@@ -76,3 +76,5 @@ export async function updateSellerProduct(token: string, productId: string, inpu
 export async function updateSellerProductStatus(token: string, productId: string, status: "DRAFT" | "ACTIVE" | "ARCHIVED"): Promise<Product> {
   return mapProduct(await request<ApiProduct>(`/api/v1/seller/products/${productId}/status`, { method: "PATCH", body: JSON.stringify({ status }) }, token));
 }
+export const fetchSellerOrders = (token: string) => request<SellerOrder[]>("/api/v1/seller/orders", {}, token);
+export const updateSellerOrderStatus = (token: string, orderId: string, status: SellerOrder["status"]) => request<SellerOrder>(`/api/v1/seller/orders/${orderId}/status`, { method: "PATCH", body: JSON.stringify({ status }) }, token);

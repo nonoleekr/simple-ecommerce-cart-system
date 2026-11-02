@@ -88,6 +88,7 @@ Once started:
 - Categories: `GET http://localhost:8080/api/v1/categories`
 - Seller catalog: `GET http://localhost:8080/api/v1/seller/products`
 - Create seller draft: `POST http://localhost:8080/api/v1/seller/products`
+- Seller fulfillment queue: `GET http://localhost:8080/api/v1/seller/orders`
 - Customer cart: `GET http://localhost:8080/api/v1/cart`
 - Customer wishlist: `GET http://localhost:8080/api/v1/wishlist`
 - Simulated checkout: `POST http://localhost:8080/api/v1/orders/checkout`

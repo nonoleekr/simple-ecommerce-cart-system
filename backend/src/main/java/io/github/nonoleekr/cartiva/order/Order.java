@@ -55,6 +55,9 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SellerFulfillment> fulfillments = new ArrayList<>();
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -79,6 +82,8 @@ public class Order {
     public void addItem(OrderItem item) {
         items.add(item);
         totalAmount = totalAmount.add(item.getLineTotal());
+        boolean sellerExists = fulfillments.stream().anyMatch(fulfillment -> fulfillment.getSeller().getId().equals(item.getSellerId()));
+        if (!sellerExists) fulfillments.add(new SellerFulfillment(this, item.getProduct().getSeller()));
     }
 
     @PrePersist

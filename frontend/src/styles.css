@@ -157,6 +157,17 @@ nav a.active::after { content: ""; height: 3px; border-radius: 3px; position: ab
 .listing-status { font-size: 10px; font-weight: 800; letter-spacing: .08em; color: var(--muted); }
 .listing-status.active { color: var(--success); }
 .listing-status.archived { color: var(--danger); }
+.fulfillment-section { padding: 23px 26px; border-bottom: 1px solid var(--border); }
+.fulfillment-section > h3, .seller-form > h3 { grid-column: 1 / -1; margin: 0 0 8px; font-size: 20px; }
+.seller-empty { margin: 14px 0 0; color: var(--muted); font-size: 13px; }
+.fulfillment-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--border); }
+.fulfillment-row h4 { margin: 7px 0 5px; }
+.fulfillment-row p { margin: 0; color: var(--muted); font-size: 13px; }
+.fulfillment-row > div:last-child { display: grid; gap: 9px; justify-items: end; }
+.fulfillment-row select { min-width: 130px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+.listing-status.processing { color: #b54708; }
+.listing-status.shipped, .listing-status.delivered { color: var(--success); }
+.listing-status.cancelled { color: var(--danger); }
 .toast { position: fixed; right: 22px; bottom: 22px; z-index: 60; max-width: min(430px, calc(100vw - 44px)); padding: 15px 18px; border: 0; border-radius: 10px; background: var(--ink); color: #fff; box-shadow: 0 14px 35px rgba(16,24,40,.22); cursor: pointer; }
 
 @media (max-width: 1100px) {
@@ -205,6 +216,8 @@ nav a.active::after { content: ""; height: 3px; border-radius: 3px; position: ab
   .review-form label, .review-form label:nth-of-type(3), .review-form .form-error, .review-form button { grid-column: 1; }
   .seller-form { grid-template-columns: 1fr; padding: 20px; }
   .seller-form label, .seller-form label:nth-of-type(3), .seller-form .form-error, .seller-form button { grid-column: 1; }
+  .fulfillment-row { grid-template-columns: 1fr; }
+  .fulfillment-row > div:last-child { justify-items: start; }
 }
 
 @media (prefers-reduced-motion: reduce) {

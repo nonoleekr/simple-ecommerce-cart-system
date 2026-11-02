@@ -21,3 +21,4 @@ export type Cart = { id: string; items: CartItem[]; totalQuantity: number; subto
 export type Order = { id: string; status: string; totalAmount: number; recipientName: string; city: string; country: string; createdAt: string; items: { productId: string; productName: string; quantity: number; unitPrice: number; subtotal: number }[] };
 export type Review = { id: string; rating: number; title: string; comment: string; customerName: string; createdAt: string };
 export type ProductReviews = { averageRating: number; reviewCount: number; reviews: Review[] };
+export type SellerOrder = { orderId: string; status: "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED"; sellerTotal: number; recipientName: string; city: string; country: string; createdAt: string; items: { productId: string; productName: string; quantity: number; unitPrice: number; lineTotal: number }[] };
